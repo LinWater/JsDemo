@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <!-- 引入 ECharts 文件 -->
+    <script src="echarts.js"></script>
+</head>
+<body>
+    <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+    <div id="main" style="width: 600px;height:400px;"></div>
+	 <div style="float:right">
+			<div>
+				美盈宝余额：20000元 <input type="button">存入</input>&nbsp<input type="button">取现</input>
+			</div>
+				投金宝：30000元 <input type="button">购买</input>&nbsp<input type="button">预约</input>&nbsp<input type="button">转让</input>
+			<div>
+			</div>
+			<div>
+			</div>
+		</div>
+	<script type="text/javascript">
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'));
+		var data = [{
+			value: 20000,
+			seriesId : "a",
+			name: '<div>美盈宝余额</div>'
+		}, {
+			value: 30000,
+			seriesId : "b",
+			name: '投金宝'
+		},{
+			value: 20000,
+			name: '定期理财'
+		}, {
+			value: 10000,
+			name: '票据理财'
+		}, {
+			value: 5000,
+			name: '转让理财'
+		}, {
+			value: 3000,
+			name: '白拿尖货'
+		}, {
+			value: 8000,
+			name: '待返款金额'
+		}];
+       option = {
+			backgroundColor: '#fff',
+			tooltip: {
+				show: true,
+				trigger: 'item',
+				formatter: function (params, ticket, callback) {
+					 //$.get('detail?name=' + params.name, function (content) {
+					//	 callback(ticket, toHTML(content));
+					 //});
+					 callback(ticket, '<div><input type="button">' + params.name + '</input></div>');
+					// console.log(params);
+					 //console.log(ticket);
+					 //console.log(callback);
+					 return '<div><input type="button">' + params.name + '</input></div>';
+				 }
+			},
+			legend: {
+				orient: 'vertical',
+				align: 'left',
+				right : '5%',
+				bottom: '40%',
+				data: ['<div>美盈宝余额</div>', '投金宝', '定期理财', '票据理财', '转让理财', '白拿尖货', '待返款金额']
+			},
+			series: [{
+				type: 'pie',
+				selectedMode: 'single',
+				center: ['30%', '50%'],
+				radius: ['25%', '58%'],
+				color: ['#86D560', '#AF89D6', '#59ADF3', '#FF999A', '#FFCC67', '#9FEE00', '#3415B0'],
+				
+				label: {
+					normal: {
+						position: 'inner',
+						formatter: '{d}%',
+
+						textStyle: {
+							color: '#fff',
+							fontWeight: 'bold',
+							fontSize: 14
+						}
+					}
+				},
+				labelLine: {
+					normal: {
+						show: false
+					}
+				},
+				data: data
+			}, {
+				type: 'pie',
+				center: ['30%', '50%'],
+				radius: ['58%', '83%'],
+				itemStyle: {
+					normal: {
+						color: '#F2F2F2'
+					},
+					emphasis: {
+						color: '#ADADAD'
+					}
+				},
+				label: {
+					normal: {
+						position: 'inner',
+						formatter: '{c}元',
+						textStyle: {
+							color: '#777777',
+							fontWeight: 'bold',
+							fontSize: 14
+						}
+					}
+				},
+				data: data
+			}]
+		};
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+		myChart.on('click', function (params) { 
+			console.log('click');
+			console.log(params);
+		});
+
+		
+
+		var app={};
+		app.currentIndex = -1;
+	//	setInterval(function () {
+			var dataLen = option.series[0].data.length;
+			// 取消之前高亮的图形
+			myChart.dispatchAction({
+				type: 'downplay',
+				seriesIndex: 0,
+				dataIndex: app.currentIndex
+			});
+			app.currentIndex = (app.currentIndex + 1) % dataLen;
+			// 高亮当前图形
+			myChart.dispatchAction({
+				type: 'highlight',
+				seriesIndex: 0,
+				dataIndex: app.currentIndex
+			});
+			// 显示 tooltip
+			myChart.dispatchAction({
+				type: 'showTip',
+				seriesIndex: 0,
+				dataIndex: app.currentIndex
+			});
+	
+	//	}, 1000);
+	
+	
+		//		myChart.on('pieselectchanged', function (params) {
+	//			console.log(params.selected);
+	//		});
+//		myChart.dispatchAction({
+//				type: 'pieToggleSelect',
+//				seriesIndex: 0,
+//				dataIndex: 1
+//			});
+
+		myChart.on('pieselected', function (params) {
+			console.log(params.selected);
+			console.log(params);
+			var isSelected = params.selected[params.name];
+			console.log((isSelected ? '选中了' : '取消选中了') + '图例' + params.name);
+			console.log(params.selected);
+		});
+		myChart.dispatchAction({
+				type: 'pieSelect',
+				seriesIndex: 0,
+				dataIndex: 1,
+				name :"投金宝"
+			});
+
+		
+		
+		
+		var legendDiv=''
+		 + '<div>'
+		 + '	<div>'
+		 + '		美盈宝余额：20000元 <input type="button">存入</input>&nbsp<input type="button">取现</input>'
+		 + '	</div>'
+		  + '	<div>'
+		 + '		投金宝：30000元 <input type="button">购买</input>&nbsp<input type="button">预约</input>&nbsp<input type="button">转让</input>'
+		 + '	</div>'
+		 + '</div>'
+		;
+		
+    </script>
+</body>
+</html>
