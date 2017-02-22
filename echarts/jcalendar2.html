@@ -1,0 +1,139 @@
+<!doctype html>
+<html dir="ltr" lang="zh-CN">
+    <head>
+        <meta charset="utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+        <title>跨游览器的JS日历</title>
+        <style type="text/css">
+            #jcalendar {
+                width:210px;
+                background:#E0ECF9;
+                border:1px solid #479AC7;
+                float:left;
+            }
+            #jcalendar span {
+                float:left;
+                width:210px;
+                height:20px;
+                background:#479AC7;
+                color:#f90;
+                font-weight:bolder;
+                text-align:center;
+            }
+            #jcalendar .week {
+                background:#D5F3F4;
+                color:#808080;
+            }
+            #jcalendar .current{
+                background:#336699;
+                color:#fff;
+            }
+            #jcalendar a {
+                display:block;
+                float:left;
+                width:30px;
+                height:20px;
+                color:#000;
+                line-height:20px;
+                text-align:center;
+                text-decoration:none;
+            }
+ 
+        </style>
+        <script type="text/javascript">
+		window.onload = function(){
+    //*********************第一阶段，填空日期数组*******************
+    var now = new Date(),
+    month = now.getMonth() + 1,//当前的月份
+    year = now.getFullYear(),//当前的年份
+    date = now.getDate(),
+    arr = fillArray(year,month);
+    //**********************第二阶段，绘制UI******************
+    drawCalendar(arr,year,month,date);
+}
+var fillArray = function(year,month){
+    var firstday = new Date(year, month -1  ,1).getDay(), //求出当月的第一天是星期几
+    lastday = new Date(year, month , 0).getDate(),//上个月的第零天就是今个月的最后一天
+    dates = lastday,//最后一天的号数就是这个月的天数
+    arr = new Array(42);//用来装载日期的数组，日期以‘xxxx-xx-xx’的形式表示
+    for(var i = 0,j = firstday; i < dates ; i ++ ,j ++){
+        arr[j] = year +'-'+ month +'-'+ (i+1) ;
+    }
+    return arr;
+}
+	var nextmonth = function(year,month,date){//按钮事件1
+    month = month + 1;
+    if(month > 12)   year = year +1,month = 1;
+    var arr = fillArray(year,month);
+    drawCalendar(arr,year,month,date);
+}
+var nextyear = function(year,month,date){//按钮事件2
+    year = year + 1;
+    var arr = fillArray(year,month);
+    drawCalendar(arr,year,month,date);
+}
+var premonth = function(year,month,date){//按钮事件3
+    month = month - 1;
+    if(month < 1)  year = year -1,month =12;
+    var arr = fillArray(year,month);
+    drawCalendar(arr,year,month,date);
+}
+var preyear = function(year,month,date){//按钮事件4
+    year = year - 1;
+    var arr = fillArray(year,month);
+    drawCalendar(arr,year,month,date);
+}
+var drawCalendar = function(arr,year,month,date){
+    var _calendar = document.getElementById("jcalendar");
+    if(_calendar) _calendar.parentNode.removeChild(_calendar);
+  
+    var body = document.getElementsByTagName('body')[0],//body的快捷引用
+    a = document.createElement('a'),//日历的a元素，用于克隆
+    calendar = document.createElement('div'),//日历的容器元素
+    thead = document.createElement('span');//日历的头部或页眉
+    body.insertBefore(calendar,null);//把日历加入DOM树中
+    calendar.setAttribute('id','jcalendar');
+    var args = year+','+month+','+date,  
+    preyear = '<tt class="ybn" onclick="preyear('+args+')"><<</tt>',
+    premonth = '<tt class="mbn" onclick="premonth('+args+')"><</tt>',
+    nextmonth = '<tt class="mbn" onclick="nextmonth('+args+')">></tt>',
+    nextyear = '<tt class="ybn" onclick="nextyear('+args+')">>></tt>',
+    str = new Date(args.replace(/,/g,'/')).toLocaleDateString();
+    thead.innerHTML = preyear + ' '+premonth + ' '+str+' '+nextmonth + ' '+nextyear;
+    calendar.appendChild(thead);
+    var weeks = "日一二三四五六".split('');//日历第二行的内容，显示星期几
+    for(i = 0;i< 7;i++){
+        var th = a.cloneNode();
+        th.innerHTML = weeks[i];
+        th.className = 'week';
+        calendar.appendChild(th);
+    }
+    for(i = 0;i <42;i++){
+        var td = a.cloneNode();
+        if(arr[i] == undefined ){
+            calendar.appendChild(td);
+        }else{
+            var html = arr[i].split('-')[2];
+            td.innerHTML = html;
+            td.className = 'day';
+            td.href = "javascript:void(0)";//为ie6准备的
+            if(date && html == date){
+                td.className = td.className +' current';
+            }
+            if(i%7 == 0 || i%7 == 6){
+                td.className = td.className +' weekend';
+            }
+            td.onclick = (function(i){
+                return function(){
+                    alert(i);//这里后面我们要修改，让arr[i]填空文本域
+                }
+            })(arr[i]);
+            calendar.appendChild(td);
+        }
+    }
+}
+        </script>
+    </head>
+    <body>
+    </body>
+</html>

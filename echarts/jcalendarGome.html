@@ -1,0 +1,203 @@
+<!doctype html>
+<html dir="ltr" lang="zh-CN">
+    <head>
+        <meta charset="utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+        <title>跨游览器的JS日历</title>
+		<script src="jQuery-2.1.4.min.js"></script>
+        <style type="text/css">
+            #jcalendar {
+                width:840px;
+                background:#E0ECF9;
+                border:1px solid #479AC7;
+                float:left;
+            }
+            #jcalendar span {
+                float:left;
+                width:840px;
+                height:80px;
+                background:#479AC7;
+                color:#f90;
+                font-weight:bolder;
+                text-align:center;
+            }
+            #jcalendar .week {
+                background:#D5F3F4;
+                color:#808080;
+            }
+            #jcalendar .current{
+                background:#336699;
+                color:#fff;
+            }
+            #jcalendar a {
+                display:block;
+                float:left;
+                width:120px;
+                height:80px;
+                color:#000;
+                line-height:80px;
+                text-align:center;
+                text-decoration:none;
+            }
+			#jcalendar tt {
+				color:#000040;
+			}
+			#jcalendar .weekend {
+				color:#f00 !important;
+			}
+			#jcalendar a.day:hover {
+				background:#99C3F6;
+			}
+ 
+        </style>
+        <script type="text/javascript">
+var Class = {
+    create: function() {
+        return function() {
+            this.initialize.apply(this, arguments);
+        }
+    }
+}
+//*********************Jcalendar类开始**********************
+
+var Jcalendar =  Class.create();
+Jcalendar.prototype = {
+    initialize:function(year , month ,cells){
+        //var _$ = new Date();
+		this.cells = cells;
+		this.year = year;
+		this.month = month;
+		var date ='1';
+        this.drawCalendar(year,month,date);
+    },
+    fillArray : function(year,month ){
+        var f = new Date(year, month -1  ,1).getDay(), //求出当月的第一天是星期几
+        dates = new Date(year, month , 0).getDate(),//上个月的第零天就是今个月的最后一天
+        arr = new Array(42);//用来装载日期的数组，日期以‘xxxx-xx-xx’的形式表示
+        for(var i = 0; i < dates ; i ++ ,f ++){
+            arr[f] = year +'-'+ month +'-'+ (i+1) ;
+        }
+        return arr;
+    },
+    drawCalendar : function(year,month,date){    
+        var _$ = document,_$_$ = 'createElement',
+        _calendar = _$.getElementById("jcalendar");
+        if(_calendar) _calendar.parentNode.removeChild(_calendar);//推倒重绘！
+        var body =  _$.getElementsByTagName('body')[0],//body的快捷引用
+        weeks = "日一二三四五六".split(''),//日历第二行的内容，显示星期几
+        calendar = _$[_$_$]('div'),//日历的容器元素
+        a =  _$[_$_$]('a'),//日历的a元素，用于克隆
+        tt =  _$[_$_$]("tt"),//日历页眉的tt元素，用于克隆
+		img = _$[_$_$]("img"),//日历背景图元素，用于克隆
+		div = _$[_$_$]("div");
+        fragment = _$.createDocumentFragment(),//减少DOM刷新页面的次数
+        arr = this.fillArray(year,month),//保存当月的日期
+        ths = this;//用于保存Jcalendar对象的实例的引用
+        body.insertBefore(calendar,null);//把日历加入DOM树中
+        calendar.setAttribute('id','jcalendar');
+        for(i = 0;i <7;i++){//星期显示区
+            var th = a.cloneNode(true);
+            th.innerHTML = weeks[i];
+            th.className = 'week';
+            fragment.appendChild(th);
+        }
+        for(i = 0;i <42;i++){//日期显示区
+            var td = a.cloneNode(true);
+            if(arr[i] == undefined ){
+                fragment.appendChild(td);
+            }else{
+                var html = arr[i].split('-')[2];
+                td.innerHTML = html;
+                td.className = 'day';
+                td.href = "javascript:void(0)";//为ie6准备的
+                (date && html == date)&&(td.className += ' current') ;//高亮每个月今天这一天
+                (i%7 == 0 || i%7 == 6)&&(td.className += ' weekend') ;//为周末添加多一个类
+				var date = arr[i];
+				td.setAttribute('id',date);
+				var cells = this.cells;
+				for(var j=0; j<this.cells.length ; j++){
+					var cell = this.cells[j];
+					if(date === cell.date){
+						if(cell.amount && parseFloat(cell.amount) > 0 ){
+							 td.innerHTML = td.innerHTML + '&nbsp' + cell.amount ;
+						}else{
+							//var img = img.cloneNode(true);
+							//img.src='./images/1.png';
+							//img.alt='30000';
+							//td.appendChild(img);
+							console.log(td.style);
+							td.style.backgroundImage = 'url('+ cell.imgSrc +')';
+							td.style.backgroundRepeat ='no-repeat';
+						}
+
+						td.onclick = (function(i){
+							return function(){
+								$('.current').removeClass('current');
+								$('#' + i.date).addClass('current');
+								var openDivId = 'openDiv' + i.date;
+								$('#jcalendar div[id!=' + openDivId +']').hide();
+								var _openDiv = _$.getElementById(openDivId);
+								if(_openDiv){//存在
+									if($(_openDiv).is(":visible")){//可见
+										$(_openDiv).hide();//隐藏
+									}else{
+										$(_openDiv).show()
+									}
+								}else{	//不存在 新建
+									var openDiv = div.cloneNode(true);
+									openDiv.innerHTML = i.date + ':' + i.amount +'元';
+									openDiv.setAttribute('id',openDivId);
+									$(openDiv).css({
+										"background-color":"#479AC7",
+										"position":"absolute",
+										"display":"block",
+										"zIndex":"100",
+										"left":"1000px",
+										"top":"100px",
+										"height":"50px",
+										"width":"200px"
+									});
+									 calendar.appendChild(openDiv);
+								}							
+							}
+						})(cells[j]);
+						break;
+					}
+				};
+                fragment.appendChild(td);
+            }
+        }
+        calendar.appendChild(fragment);
+    }
+}
+//*********************Jcalendar类结束**********************
+window.onload = function(){
+		var cells =[];
+		var cell_0 ={};
+		cell_0.date ='2017-2-2';
+		cell_0.imgSrc = './images/1.png';
+		cell_0.amount = '30000';
+		cells.push(cell_0);
+		var cell_1 ={};
+		cell_1.date ='2017-2-3';
+		cell_1.imgSrc = './images/1.png';
+		cell_1.amount = '0';
+		cells.push(cell_1);
+		var cell_2 ={};
+		cell_2.date ='2017-2-4';
+		cell_2.imgSrc = './images/1.png';
+		//cell_2.amount = '';
+		cells.push(cell_2);
+        new Jcalendar('2017','2',cells);
+}
+        </script>
+    </head>
+    <body>
+		<div id='jcalendar'> 
+		
+		</div>
+		<div> 
+		
+		</div>
+    </body>
+</html>

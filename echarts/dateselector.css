@@ -1,0 +1,49 @@
+#jcalendar {
+    width:210px;
+    background:#E0ECF9;
+    border:1px solid #479AC7;
+    float:left;
+}
+ 
+#jcalendar span {
+    float:left;
+    width:210px;
+    height:20px;
+    background:#479AC7;
+    color:#f90;
+    font-weight:bolder;
+    text-align:center;
+}
+ 
+#jcalendar .week {
+    background:#D5F3F4;
+    color:gray;
+}
+ 
+#jcalendar .current {
+    background:#369;
+    color:#fff;
+}
+ 
+#jcalendar a {
+    display:block;
+    float:left;
+    width:30px;
+    height:20px;
+    color:#000;
+    line-height:20px;
+    text-align:center;
+    text-decoration:none;
+}
+ 
+#jcalendar tt {
+    color:#000040;
+}
+ 
+#jcalendar .weekend {
+    color:#f00 !important;
+}
+ 
+#jcalendar a.day:hover {
+    background:#99C3F6;
+}
