@@ -109,7 +109,7 @@ Jcalendar.prototype = {
                 var html = arr[i].split('-')[2];
                 td.innerHTML = html;
                 td.className = 'day';
-                td.href = "javascript:void(0)";//为ie6准备的
+               
                 (date && html == date)&&(td.className += ' current') ;//高亮每个月今天这一天
                 (i%7 == 0 || i%7 == 6)&&(td.className += ' weekend') ;//为周末添加多一个类
 				var date = arr[i];
@@ -118,14 +118,23 @@ Jcalendar.prototype = {
 				for(var j=0; j<this.cells.length ; j++){
 					var cell = this.cells[j];
 					if(date === cell.date){
-						if(cell.amount && parseFloat(cell.amount) > 0 ){
-							 td.innerHTML = td.innerHTML + '&nbsp' + cell.amount ;
-						}else{
+						if(cell.amount && parseFloat(cell.amount) > 0 ){//有金额
+							 if(cell.activityName != undefined && cell.activityName != ''){//有活动
+								td.innerHTML = td.innerHTML + '&nbsp' + cell.amount + '&nbsp' + cell.activityName;
+								td.href = cell.imgUrl;//为ie6准备的
+								td.target = '_blank';
+							 }else{
+								td.innerHTML = td.innerHTML + '&nbsp' + cell.amount ;
+							 }
+							
+						}else{ //没有金额，只有活动
 							//var img = img.cloneNode(true);
 							//img.src='./images/1.png';
 							//img.alt='30000';
 							//td.appendChild(img);
-							console.log(td.style);
+							console.log(td);
+							td.href = cell.imgUrl;//为ie6准备的
+							td.target = '_blank';
 							td.style.backgroundImage = 'url('+ cell.imgSrc +')';
 							td.style.backgroundRepeat ='no-repeat';
 						}
@@ -175,17 +184,23 @@ window.onload = function(){
 		var cells =[];
 		var cell_0 ={};
 		cell_0.date ='2017-2-2';
+		cell_0.activityName = '逢8理财';
 		cell_0.imgSrc = './images/1.png';
+		cell_0.imgUrl = 'http://www.baidu.com';
 		cell_0.amount = '30000';
 		cells.push(cell_0);
 		var cell_1 ={};
 		cell_1.date ='2017-2-3';
+		cell_0.activityName = '逢8理财';
 		cell_1.imgSrc = './images/1.png';
+		cell_1.imgUrl = 'http://www.baidu.com';
 		cell_1.amount = '0';
 		cells.push(cell_1);
 		var cell_2 ={};
 		cell_2.date ='2017-2-4';
+		cell_0.activityName = '逢8理财';
 		cell_2.imgSrc = './images/1.png';
+		cell_2.imgUrl = 'http://www.baidu.com';
 		//cell_2.amount = '';
 		cells.push(cell_2);
         new Jcalendar('2017','2',cells);
